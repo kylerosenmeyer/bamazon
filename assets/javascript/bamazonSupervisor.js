@@ -1,4 +1,4 @@
-//*This is a node application called bamazonCustomer. It allows the user to shop for products and make purchases!
+//*This is a node application called bamazonSupervisor. It allows the user to pull department sales!
 
 //Define constants for node modules.
 const   mysql = require("mysql"),
@@ -18,7 +18,9 @@ var connection = mysql.createConnection({
     password: "root",
     database: "bamazon_DB"
 })
-    
+
+//Connect to the server and grab all the department information to work with for the tasks.
+//This data is stored in a separate array for each department.
 connection.connect(function(err) {
 
     if (err) throw err;
@@ -36,9 +38,14 @@ connection.connect(function(err) {
         clothingDepartment.push(clothing.department_id, clothing.department_name, Number(clothing.over_head_costs).toFixed(2))
 
     })
+    //Run the supervision prompt.
     supervision()
 });
 
+//The supervision prompt asks the supervisor what they would like to do.
+//To view sales by department, a chain of functions is ran starting with getSales().
+//Add Department is not a working feature at this time, so that function only returns a console log.
+//End supervision session ends the connection.
 function supervision() {
 
     inquire.prompt([
@@ -70,9 +77,10 @@ function supervision() {
     })
 }
 
+//getSales() is the first function in the sales display chain of functions.
+//getSales groups all the product sales from the products table by department and stores them into
+//local department arrays.
 function getSales() {
-
-    
 
     connection.query(
         "SELECT SUM(products.product_sales) AS sum_sales, departments.department_name " +
@@ -104,17 +112,15 @@ function getSales() {
     setTimeout( function() {
         updateSales()
     },500)
-    
-    
 }
 
+//updateSales() is the 2nd function in the sales displahy chain of functions.
+//It takes the product sales and updates the department table.
 function updateSales() {
-
 
     connection.query(
                         
         "UPDATE departments SET ? WHERE ?",
-
         [
             {
                 product_sales: homeDepartment[3]
@@ -123,16 +129,13 @@ function updateSales() {
                 department_name: homeDepartment[1]
             }
         ],
-
         function(err, res) {
-
         }
     )
 
     connection.query(
                         
         "UPDATE departments SET ? WHERE ?",
-
         [
             {
                 product_sales: electronicsDepartment[3]
@@ -141,16 +144,12 @@ function updateSales() {
                 department_name: electronicsDepartment[1]
             }
         ],
-
         function(err, res) {
-
         }
     )
-
     connection.query(
                         
         "UPDATE departments SET ? WHERE ?",
-
         [
             {
                 product_sales: clothingDepartment[3]
@@ -159,14 +158,15 @@ function updateSales() {
                 department_name: clothingDepartment[1]
             }
         ],
-
         function(err, res) {
-
             displaySales()
         }
     )
 }
 
+//displaySales() is the 3rd funtion in the sales display chain of functions.
+//It takes the department arrays and plots them into a table.
+//It also calculates the department profit on the fly and displays that in the table. 
 function displaySales() {
 
     console.log("\nHere are the current sales figures by department:\n")
@@ -187,10 +187,14 @@ function displaySales() {
 
     console.log(toutput)
     
+    //Take the supervisor back to the decision prompt after completing this task.
     supervision()
 }
 
+//newDepartment is an unfinished function.
 function newDepartment() {
     console.log("\nAhhh... With the recent budget cuts taking effect, I'm afraid we can\'t expand right now.\n")
+
+    //Take the supervisor back to the decision prompt after completing this task.
     supervision()
 }

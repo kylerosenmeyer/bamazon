@@ -1,4 +1,4 @@
-//*This is a node application called bamazonCustomer. It allows the user to shop for products and make purchases!
+//*This is a node application called bamazonManager. It allows the user to update products and add products!
 
 //Define constants for node modules.
 const   mysql = require("mysql"),
@@ -15,7 +15,8 @@ var connection = mysql.createConnection({
     password: "root",
     database: "bamazon_DB"
 })
-    
+
+//Make the first connection to the server and run the manager prompt.
 connection.connect(function(err) {
 
     if (err) throw err
@@ -26,7 +27,8 @@ connection.connect(function(err) {
 });
 
 
-
+//This is the Manager Prompt. 
+//It provides a list of tasks to perform, and runs an associated function with each task.
 function management() {
 
     inquire.prompt([
@@ -66,6 +68,9 @@ function management() {
     })
 }
 
+//Any time a task requires the user to have the current list of products, run itemArrayBuilder.
+//This is currently called by the displaySales() function and the newInventory() function.
+//itemArrayBuilder prints the current product lineup to the console.
 function itemArrayBuilder(data) {
 
     itemArray = []
@@ -94,7 +99,8 @@ function itemArrayBuilder(data) {
     }
 } 
 
-
+//displayProducts produces the current product. It selects everything from the products table and passes it
+//to the itemArrayBuilder. After completing it returns to the manager prompt.
 function displayProducts() {
 
     connection.query("SELECT * FROM products", function(err, data) {
@@ -108,6 +114,10 @@ function displayProducts() {
     })
 }
 
+//lowInventory() produces a list of products that have 5 units or less in stock. Because of this condition,
+//lowInventory() does not rely on itemArrayBuilder.
+//lowInventory() also provides a prompt to move directly to a an inventory order after displaying the low
+//inventory results in the console.
 function lowInventory() {
 
     connection.query("SELECT * FROM products", function(err, data) {
@@ -132,7 +142,7 @@ function lowInventory() {
 
             } 
         }
-
+        //This prompt takes the manager into a new inventory order, or back to the main task prompt.
         inquire.prompt([
             {
                 type: "confirm",
@@ -150,6 +160,8 @@ function lowInventory() {
     })
 }
 
+//newInventory() is a function that adds quantity to an existing product in the lineup.
+//It is called either from the main task selection screen or from the prompt within the lowInventory() function.
 function newInventory() {
 
     if ( itemArray[0] === undefined) {
@@ -159,7 +171,8 @@ function newInventory() {
             itemArrayBuilder(data)     
         })
     } 
-
+    //The list of current products is displayed to the manager to choose from, and then the quantity to order
+    //is taken. A connection is established with the server and the data is passed into the table.
     setTimeout( function() {    
 
         console.log("\n")
@@ -198,11 +211,10 @@ function newInventory() {
                         product_name: response.productUpdate
                     }
                 ],
-        
                 function(err, res) {
         
                     console.log("\n Another " + response.newQuantity + " unit(s) of " + response.productUpdate + " were ordered.\n")
-                    
+                    //Take the manager back to the main task prompt.
                     management()
                 }
             )
@@ -211,6 +223,9 @@ function newInventory() {
     
 }
 
+//newProduct() is a function that adds a new product to the products table. It queries the manager for the 
+//name, department, pricepoint, and initial quantity. It establishes a server connection and passes the data
+//to the table. It prints the new product to the console and takes the manager back to the main task prompt.
 function newProduct() { 
 
     console.log("\n")
@@ -259,7 +274,7 @@ function newProduct() {
                 console.log("Department: ", response.newProductDept)
                 console.log("Price: $", response.newProductPrice)
                 console.log("Initial Quantity: ", response.newProductQuantity, "\n")
-                
+                //Take the manager back to the main task prompt.
                 management()
             }
         )

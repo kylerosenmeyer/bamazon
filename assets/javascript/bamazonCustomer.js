@@ -17,7 +17,8 @@ var connection = mysql.createConnection({
     password: "root",
     database: "bamazon_DB"
 })
-    
+
+//Establish the connection with the server and run displayProducts()
 connection.connect(function(err) {
 
     if (err) throw err
@@ -28,6 +29,8 @@ connection.connect(function(err) {
     displayProducts()
 })
 
+//displayProducts() is the function that prints all the current products to the page.
+//This is the first function in the user experience. It calls goShopping() at it's completion.
 function displayProducts() {
 
     checkout = []
@@ -59,18 +62,21 @@ function displayProducts() {
             console.log("Department: ", departmentName)
             console.log("Price: $" + price)
             console.log("Quanitity Available: ", quantity, "\n")
-
         }
-
         setTimeout( function() {
+            //This initiates the first shopping prompt to the customer.
             goShopping()
         },500)
-
     })
-
-
 }
 
+//goShopping() is main user experience piece of the app.
+//1. It prompts the customer if they would like to shop.
+//2. It displays the list of current products to choose from.
+//3. It grabs all the of the current information on the product chosen.
+//4. It asks the customer how many units they would like and shows them how many units are available.
+//5. It displays a checkout message with the total amount and quantity of the item.
+//6. It concludes with running the contineShopping() function to end the session or loop the customer back through.
 function goShopping() {
 
     inquire.prompt([
@@ -156,7 +162,7 @@ function goShopping() {
                             console.log("\nSucess! You are the proud owner of " + checkout[7] + " new " + checkout[1] + "s!\n")
                             console.log("Grand Total: $", checkout[6], "\n")
                         }
-
+                        //This server connection updates the quantity available of the product after purchase.
                         connection.query(
                         
                             "UPDATE products SET ? WHERE ?",
@@ -174,23 +180,26 @@ function goShopping() {
                             function(err, res) {
 
                                 console.log("\n")
-                                
+                                //This takes the customer to the last prompt of the experience.
                                 continueShopping()
                             }
                         )
                     } else {
 
                         console.log("That\'s ok.\n")
+                        //This takes the customer to the last prompt of the experience.
                         continueShopping()
                     }
                 })
             } else if ( checkout[4] === 0 ) {
 
                 console.log("We are Sold OUT of that item!\n")
+                //This takes the customer to the last prompt of the experience.
                 continueShopping()
             } else {
 
                 console.log("We do not have that many items available.\n")
+                //This takes the customer to the last prompt of the experience.
                 continueShopping()
             }
         })
@@ -198,6 +207,7 @@ function goShopping() {
 
 }
 
+//continueShopping() is the function that prompts the user to loop back to the start of the app or end the session.
 function continueShopping() {
 
     inquire.prompt([
@@ -211,11 +221,12 @@ function continueShopping() {
         console.log("\n")
 
         if ( response.continue ) {
-
+            //Restart session.
             displayProducts()
             
         } else {
             console.log("Come again soon!\n")
+            //End session.
             connection.end()
         }
     })
