@@ -17,4 +17,16 @@ See **Kyle Rosenmeyer's** [website and entire portfolio here.](https://kylerosen
 
 Screenshots of the working app:
 
+![Screen 1](/assets/images/screen1.png)
+-----------------------------------------------------
+![Screen 2](/assets/images/screen2.png)
+-----------------------------------------------------
+![Screen 3](/assets/images/screen3.png)
+-----------------------------------------------------
+![Screen 4](/assets/images/screen4.png)
+-----------------------------------------------------
 
+# User walkthrough video:
+
+[Click Here to View/Download](/assets/images/bamazon_walkthrough.webm)
+-----------------------------------------------------
